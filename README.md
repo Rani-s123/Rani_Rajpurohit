@@ -1,3 +1,5 @@
+What I Did in My Project :-
+
 I developed a Bus Boarding Sequence Generator using FastAPI, Pandas, and HTML/JavaScript.
 The goal was to generate a booking-wise boarding order that helps passengers board efficiently when there is only one front entry in the bus.
 
