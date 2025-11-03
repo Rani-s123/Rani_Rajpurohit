@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🚌 Bus Boarding Sequence Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f8f9fa;
+    }
+    h1 {
+      color: #222;
+    }
+    input, button {
+      font-size: 16px;
+      padding: 8px 12px;
+      margin-top: 10px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 40%;
+      margin-top: 20px;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #007bff;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    #summary {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <h1>🚌 Bus Boarding Sequence Generator</h1>
+
+  <input type="file" id="fileInput" />
+  <button onclick="uploadFile()">Generate Sequence</button>
+
+  <div id="summary"></div>
+
+  <table id="resultTable">
+    <thead>
+      <tr>
+        <th>Seq</th>
+        <th>Booking_ID</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function uploadFile() {
+      const fileInput = document.getElementById('fileInput');
+      const summaryDiv = document.getElementById('summary');
+      const tbody = document.querySelector("#resultTable tbody");
+
+      if (!fileInput.files.length) {
+        alert("Please choose a CSV file first!");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      try {
+        const res = await fetch("/boarding-sequence/", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        tbody.innerHTML = "";
+        summaryDiv.innerHTML = "";
+
+        if (data.error) {
+          alert("Error: " + data.error);
+          return;
+        }
+
+        // Display booking sequence (only Seq and Booking_ID)
+        data.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${row.Seq}</td><td>${row.Booking_ID}</td>`;
+          tbody.appendChild(tr);
+        });
+
+        // Add summary
+        if (data.length > 0) {
+          const first = data[0];
+          summaryDiv.innerHTML = `➡️ Booking <b>${first.Booking_ID}</b> will board first — farthest seats from the entry.`;
+        }
+
+      } catch (err) {
+        alert("Connection Error: " + err);
+      }
+    }
+  </script>
+</body>
+</html>
